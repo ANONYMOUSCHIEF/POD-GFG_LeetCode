@@ -14,15 +14,14 @@ class Solution{
   public:
     int MissingNumber(vector<int>& array, int n) {
         // Your code goes here
-        vector<int>a(n+1,0);
+        long long val=0;
         for(int i=0;i<n-1;i++){
-            a[array[i]]=1;
+            val^=array[i];
         }
         for(int i=1;i<=n;i++){
-            if(!a[i]){
-                return i;
-            }
+           val^=i;
         }
+        return val;
     }
 };
 
