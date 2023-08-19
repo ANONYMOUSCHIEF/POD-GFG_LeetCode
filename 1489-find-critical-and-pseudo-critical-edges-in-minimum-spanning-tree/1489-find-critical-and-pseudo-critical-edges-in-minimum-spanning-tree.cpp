@@ -1,100 +1,125 @@
-class Solution {
+#define vi vector<int>
+#define rep(s,e,i) for(int i=s;i<e;i++)
+
+class DSU
+{
+    vi rank, parent, size;
+
 public:
-    class UnionFind {
-    public:
-        vector<int> parent;
-        vector<int> size;
-        int maxSize;
+    // intialize
+    DSU(int n)
+    {
+        rank.resize(n + 1, 0);
+        parent.resize(n + 1);
+        size.resize(n + 1, 1);
+        rep(0, n + 1, i) parent[i] = i;
+    }
+    // path compression
+    int findpr(int u)
+    {
+        if (parent[u] == u)
+            return u;
+        return parent[u] = findpr(parent[u]);
+    }
 
-        UnionFind(int n) {
-            parent.resize(n);
-            size.resize(n, 1);
-            maxSize = 1;
-            for (int i = 0; i < n; i++) {
-                parent[i] = i;
+    // union
+    void unionByRank(int u, int v)
+    {
+        int ulp_u = findpr(u);
+        int ulp_v = findpr(v);
+        if (ulp_u == ulp_v)
+            return;
+        if (rank[ulp_u] < rank[ulp_v])
+        {
+            parent[ulp_u] = ulp_v;
+        }
+        else
+        {
+            parent[ulp_v] = ulp_u;
+            rank[ulp_u]++;
+        }
+    }
+    void unionBySize(int u, int v)
+    {
+        int ulp_u = findpr(u);
+        int ulp_v = findpr(v);
+        if (ulp_u == ulp_v)
+            return;
+        if (rank[ulp_u] < rank[ulp_v])
+        {
+            parent[ulp_u] = ulp_v;
+            size[ulp_v] += size[ulp_u];
+        }
+        else
+        {
+            parent[ulp_v] = ulp_u;
+            size[ulp_u] += size[ulp_v];
+        }
+    }
+    int maxSize()
+    {
+        return *max_element(size.begin(), size.end());
+    }
+};
+
+static bool comp(vector<int> a, vector<int> b)
+{
+    return a[2] < b[2];
+};
+
+class Solution
+{
+public:
+    vector<vector<int>> findCriticalAndPseudoCriticalEdges(int n, vector<vector<int>> &edges)
+    {
+        rep(0, edges.size(), i) edges[i].push_back(i);
+        sort(edges.begin(), edges.end(), comp);
+        DSU ds(n);
+        int normal = 0;
+        for (auto i : edges)
+        {
+            if (ds.findpr(i[0]) != ds.findpr(i[1]))
+            {
+                normal += i[2];
+                ds.unionBySize(i[0], i[1]);
             }
         }
-
-        int find(int x) {
-            // Finds the root of x
-            if (x != parent[x]) {
-                parent[x] = find(parent[x]);
-            }
-            return parent[x];
-        }
-
-        bool unite(int x, int y) {
-            // Connects x and y
-            int rootX = find(x);
-            int rootY = find(y);
-            if (rootX != rootY) {
-                if (size[rootX] < size[rootY]) {
-                    swap(rootX, rootY);
+        cout << normal << "\n";
+        vector<vector<int>> ans(2);
+        rep(0, edges.size(), i)
+        {
+            int left = 0;
+            DSU ds1(n);
+            rep(0, edges.size(), j)
+            {
+                if (i != j && ds1.findpr(edges[j][0]) != ds1.findpr(edges[j][1]))
+                {
+                    left += edges[j][2];
+                    ds1.unionBySize(edges[j][0], edges[j][1]);
                 }
-                parent[rootY] = rootX;
-                size[rootX] += size[rootY];
-                maxSize = max(maxSize, size[rootX]);
-                return true;
             }
-            return false;
-        }
-    };
-
-    vector<vector<int>> findCriticalAndPseudoCriticalEdges(int n, vector<vector<int>>& edges) {
-        auto newEdges = edges;
-        // Add index to edges for tracking
-        int m = newEdges.size();
-        for (int i = 0; i < m; i++) {
-            newEdges[i].push_back(i);
-        }
-
-        // Sort edges based on weight
-        sort(newEdges.begin(), newEdges.end(), [](auto& a, auto& b) {
-            return a[2] < b[2];
-        });
-
-        // Find MST weight using union-find
-        UnionFind ufStd(n);
-        int stdWeight = 0;
-        for (const auto& edge : newEdges) {
-            if (ufStd.unite(edge[0], edge[1])) {
-                stdWeight += edge[2];
+            if (ds1.maxSize() < n || left > normal)
+            {
+                ans[0].push_back(edges[i][3]);
             }
-        }
-
-        vector<vector<int>> results(2);
-        // Check each edge for critical and pseudo-critical
-        for (int i = 0; i < m; i++) {
-            UnionFind ufIgnore(n);
-            int ignoreWeight = 0;
-            for (int j = 0; j < m; j++) {
-                if (i != j && ufIgnore.unite(newEdges[j][0], newEdges[j][1])) {
-                    ignoreWeight += newEdges[j][2];
-                }
-            }
-
-            // If the graph is disconnected or the total weight is greater, 
-            // the edge is critical
-            if (ufIgnore.maxSize < n || ignoreWeight > stdWeight) {
-                results[0].push_back(newEdges[i][3]);
-            } else {
-                // Force this edge and calculate MST weight
-                UnionFind ufForce(n);
-                ufForce.unite(newEdges[i][0], newEdges[i][1]);
-                int forceWeight = newEdges[i][2];
-                for (int j = 0; j < m; j++) {
-                    if (i != j && ufForce.unite(newEdges[j][0], newEdges[j][1])) {
-                        forceWeight += newEdges[j][2];
+            else
+            {
+                int include = 0;
+                DSU ds2(n);
+                ds2.unionBySize(edges[i][0], edges[i][1]);
+                include += edges[i][2];
+                rep(0, edges.size(), j)
+                {
+                    if (i != j && ds2.findpr(edges[j][0]) != ds2.findpr(edges[j][1]))
+                    {
+                        include += edges[j][2];
+                        ds2.unionBySize(edges[j][0], edges[j][1]);
                     }
                 }
-
-                // If total weight is the same, the edge is pseudo-critical
-                if (forceWeight == stdWeight) {
-                    results[1].push_back(newEdges[i][3]);
-                }
+                if (include == normal)
+                    ans[1].push_back(edges[i][3]);
             }
         }
-
-        return results;
+        return ans;
     }
 };
