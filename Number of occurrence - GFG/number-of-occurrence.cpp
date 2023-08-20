@@ -11,20 +11,7 @@ public:
 	/* if x is present in arr[] then returns the count
 		of occurrences of x, otherwise returns 0. */
 	int count(int a[], int n, int x) {
-	    int low=0,high=n-1;
-	    while(low<=high){
-	        int mid = (low+high)>>1;
-	        if(a[mid]>x) high=mid-1;
-	        else low=mid+1;
-	    }
-	    int end=low;
-	    low=0,high=n-1;
-	     while(low<=high){
-	        int mid = (low+high)>>1;
-	        if(a[mid]<x) low=mid+1;
-	        else high=mid-1;
-	    }
-	    return end-low;
+	    return upper_bound(a,a+n,x)-lower_bound(a,a+n,x);
 	}
 };
 
