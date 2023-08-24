@@ -6,12 +6,9 @@ public:
         for(auto i:arr2){
            xo^=i;
         }
+          int ans=0;
         for(auto i:arr1){
-            x.push_back(i&xo);
-        }
-        int ans=0;
-        for(auto i:x){
-            ans^=i;
+            ans^=(i&xo);
         }
         return ans;
     }
