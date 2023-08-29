@@ -14,7 +14,6 @@ public:
             int val1=lower_bound(visit.begin(),visit.end(),j)-visit.begin();
             val1=visit.size()-val1+1;
             int val2=lower_bound(notVisit.begin(),notVisit.end(),j)-notVisit.begin()+1;
-            
             if((val1+val2)<=mini){
                 mini=val1+val2;
                 ans=j;
