@@ -27,6 +27,7 @@ public:
                 prev=head;
                 head=head->next;
             }
+            if(!head) break;
             if(prev) prev->next=NULL;
         }
         return res;
