@@ -6,7 +6,7 @@ public:
             a[i-'a']++;
         }
         sort(a.rbegin(),a.rend());
-        // for(auto i:a) cout<<i<<" ";
+        for(auto i:a) cout<<i<<" ";
         int ans=0;
         int smallest=INT_MAX;
         for(auto i:a){
@@ -14,8 +14,11 @@ public:
             if(smallest>i) {smallest=i; continue;}
             else {
                 ans+=(i-smallest+1);
-                if(!smallest){ ans--; continue;}
-                smallest=i-(i-smallest+1);
+                if(!smallest){
+                    ans--;
+                    continue;
+                }
+                smallest=(i-(i-smallest+1));
             }
         }
         return ans;
