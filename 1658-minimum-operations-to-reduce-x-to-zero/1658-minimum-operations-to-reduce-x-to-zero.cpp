@@ -1,23 +1,22 @@
 class Solution {
 public:
     int minOperations(vector<int>& nums, int x) {
-        unordered_map<int,int>m;
+        int n=nums.size();
         int total=accumulate(nums.begin(),nums.end(),0);
-        if(total==x) return nums.size();
+        if(total==x) return n;
         total-=x;
         x=total;
-        int sum=0,k=0,ans=-1;
-        m[0]=-1;
+        int j=0,k=0,ans=-1,sum=0;
         for(auto i:nums){
             sum+=i;
-            if(m.find(sum-x)!=m.end()){
-                cout<<sum<<" "<<x<<" "<<k<<" "<<m[sum-x]<<"\n";
-                ans=max(ans,k-m[sum-x]);
+            while(k<n && sum>x){
+                sum-=nums[k];
+                k++;
             }
-            if(m.find(sum)==m.end()) m[sum]=k;
-            k++;
+            if(sum==x) ans = max(ans,j-k);
+            j++;
         }
         if(ans==-1) return -1;
-        return nums.size()-ans;
+        return n-ans-1;
     }
 };
