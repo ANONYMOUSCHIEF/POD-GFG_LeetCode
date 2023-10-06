@@ -1,15 +1,23 @@
-class Solution {
+class Solution
+{
 public:
-    int integerBreak(int n) {
-        int ans=n-1;
-        for(int i=1;i<=n;i++){
-             int po=n/i;
-             for(int k=1;k<=po;k++){
-                 int j=n-(k*i);
-                 ans= max(ans,(int)pow(i,k)*j);
-             }
-             
-        }
-        return ans;
-    }
+    int integerBreak(int n)
+    {
+        if(n<=3) return n-1;
+        vector<int> dp(n + 1, -1);
+        function<int(int)> help = [&](int n)
+        {
+            if (n <= 3)
+                return n;
+            if (dp[n] != -1)
+                return dp[n];
+            int ans = n;
+            for (int i = 2; i < n; i++)
+            {
+                ans = max(ans, i * help(n - i));
+            }
+            return dp[n] = ans;
+        };
+        return help(n);
+    };
 };
